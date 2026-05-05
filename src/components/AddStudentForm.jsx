@@ -1,11 +1,14 @@
 // src/components/AddStudentForm.jsx
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { addStudent } from '../features/students/studentsSlice';
 
 const EMPTY_FORM = { name: '', studentId: '', major: '', gpa: '' };
 
-function AddStudentForm({ onAddStudent }) {
+function AddStudentForm() {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
+  const dispatch = useDispatch();
 
   // Single handler for ALL inputs via computed property name
   function handleChange(e) {
@@ -28,13 +31,13 @@ function AddStudentForm({ onAddStudent }) {
       return;
     }
 
-    onAddStudent({
+    dispatch(addStudent({
       id: Date.now(), // Temporary ID — Session 4 uses API-generated IDs
       name: formData.name.trim(),
       studentId: formData.studentId.trim(),
       major: formData.major.trim() || 'Undeclared',
       gpa: gpaNum,
-    });
+    }));
 
     setFormData(EMPTY_FORM); // Reset form after successful submit
     setError('');

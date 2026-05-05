@@ -1,7 +1,9 @@
-// src/components/GpaSummary.jsx
 import React from 'react';
+import { useSelector } from 'react-redux';
 
-function GpaSummary({ students }) {
+function GpaSummary() {
+  const students = useSelector((state) => state.students);
+
   if (students.length === 0) return null;
 
   const average = (students.reduce((sum, s) => sum + s.gpa, 0) / students.length).toFixed(2);

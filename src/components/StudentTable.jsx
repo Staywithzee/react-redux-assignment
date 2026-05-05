@@ -1,7 +1,18 @@
 // src/components/StudentTable.jsx
 import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { deleteStudent } from '../features/students/studentsSlice';
 
-function StudentTable({ students, onDeleteStudent }) {
+function StudentTable() {
+  const students = useSelector((state) => state.students);
+  const dispatch = useDispatch();
+
+  const handleDelete = (id) => {
+    if (window.confirm('Are you sure you want to delete this student?')) {
+      dispatch(deleteStudent(id));
+    }
+  };
+
   if (students.length === 0) {
     return (
       <div className="student-table-container">
@@ -40,7 +51,7 @@ function StudentTable({ students, onDeleteStudent }) {
               <td>
                 <button 
                   className="btn-delete" 
-                  onClick={() => onDeleteStudent(student.id)}
+                  onClick={() => handleDelete(student.id)}
                   title="Delete Student"
                 >
                   Delete
