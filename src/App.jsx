@@ -10,7 +10,7 @@ function App() {
     <div className="app-container">
       <header className="app-header">
         <h1>AcadeMate</h1>
-        <p>Student Academic Performance Tracker — Redux Toolkit Migration</p>
+        <p>Premium Academic Performance Analytics & Student Management System</p>
       </header>
 
       <main className="app-main">

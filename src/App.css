@@ -1,212 +1,250 @@
 /* src/App.css */
 .app-container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 4rem 2rem;
   min-height: 100vh;
 }
 
+/* Header Section */
 .app-header {
   text-align: center;
-  margin-bottom: 3rem;
-  animation: fadeInDown 0.8s ease-out;
+  margin-bottom: 4rem;
+  animation: slideDown 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .app-header h1 {
-  font-size: 3rem;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  font-size: 4rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #f4f4f5 0%, #a1a1aa 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+  display: inline-block;
 }
 
 .app-header p {
   color: var(--text-muted);
-  font-size: 1.1rem;
+  font-size: 1.125rem;
+  max-width: 600px;
+  margin: 0 auto;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
+/* Main Layout */
 .app-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-  animation: fadeInUp 0.8s ease-out 0.2s both;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  animation: fadeIn 1s ease-out 0.2s both;
 }
 
-/* GpaSummary Styles */
+/* GpaSummary Grid */
 .gpa-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
 }
 
 .stat-card {
-  background: var(--card-bg);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: var(--shadow-md);
+  background: var(--surface);
+  padding: 2rem 1.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-subtle);
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.3s ease;
-  border: 1px solid var(--border-color);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-premium);
+  border-color: var(--primary-light);
 }
 
 .stat-card.highlight {
-  border: 2px solid var(--primary);
-  background: linear-gradient(to bottom right, #ffffff, #f5f3ff);
+  background: linear-gradient(145deg, #27272a 0%, #18181b 100%);
+}
+
+.stat-card.highlight::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--primary);
 }
 
 .stat-label {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
 }
 
 .stat-value {
-  font-size: 2rem;
+  font-size: 2.75rem;
   font-weight: 700;
-  color: var(--primary);
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.05em;
+  color: var(--text-main);
+  line-height: 1;
 }
 
-/* AddStudentForm Styles */
+/* Forms Section */
 .add-form {
-  background: var(--card-bg);
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: var(--shadow-md);
+  background: var(--surface);
+  padding: 2.5rem;
+  border-radius: 2rem;
   border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
 }
 
 .add-form h3 {
-  margin-bottom: 1.5rem;
-  color: var(--text-main);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  display: inline-block;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.add-form h3::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
 }
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
   align-items: flex-end;
 }
 
 .add-form input {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s;
+  background: #09090b;
+  border: 1px solid #3f3f46;
+  color: var(--text-main);
+  padding: 0.875rem 1.25rem;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.add-form input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
 }
 
 .add-form input:focus {
+  background: #18181b;
   border-color: var(--primary);
-  ring: 2px solid rgba(79, 70, 229, 0.1);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+  outline: none;
 }
 
 .btn-primary {
   background: var(--primary);
   color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 1rem;
   font-weight: 600;
   font-size: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
 }
 
 .btn-primary:hover {
-  background: var(--primary-hover);
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
 }
 
-.form-error {
-  color: var(--danger);
-  background: #fef2f2;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  border: 1px solid #fee2e2;
-}
-
-/* StudentTable Styles */
+/* Table Section */
 .student-table-container {
-  background: var(--card-bg);
-  border-radius: 1rem;
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
+  background: var(--surface);
+  border-radius: 2rem;
   border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
 }
 
 .student-table {
   width: 100%;
-  border-collapse: collapse;
-  text-align: left;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .student-table th {
-  background: #f8fafc;
-  padding: 1rem 1.5rem;
+  background: #18181b;
+  padding: 1.25rem 1.5rem;
   font-weight: 600;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  font-size: 0.875rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  font-family: 'Space Grotesk', sans-serif;
   border-bottom: 1px solid var(--border-color);
 }
 
 .student-table td {
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-main);
+  vertical-align: middle;
 }
 
-.student-table tr:last-child td {
-  border-bottom: none;
+.student-table tr:hover {
+  background-color: #27272a;
 }
 
 .student-table tr.high-gpa {
-  background-color: #f0fdf4;
-}
-
-.gpa-cell {
-  font-weight: 600;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: var(--text-muted);
-  font-style: italic;
+  background-color: rgba(16, 185, 129, 0.05);
 }
 
 .btn-delete {
-  background: #fee2e2;
-  color: var(--danger);
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 0.4rem;
-  font-size: 0.8rem;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid #3f3f46;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
 .btn-delete:hover {
-  background: var(--danger);
-  color: white;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.2);
 }
 
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-20px); }
+/* Animations */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-40px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fadeInUp {
+@keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .app-container { padding: 2rem 1rem; }
+  .app-header h1 { font-size: 2.5rem; }
+  .form-row { grid-template-columns: 1fr; }
 }
