@@ -1,33 +1,47 @@
+// src/features/students/studentsSlice.js — Session 4 update
 import { createSlice } from '@reduxjs/toolkit';
-
-const initialState = {
-  list: [
-    { id: 1, name: 'Somchai Rakpong', studentId: '6501001', major: 'Computer Science', gpa: 3.85 },
-    { id: 2, name: 'Naree Thongdee', studentId: '6501002', major: 'Information Technology', gpa: 3.60 },
-    { id: 3, name: 'Krit Suwan', studentId: '6501003', major: 'Computer Science', gpa: 2.95 },
-    { id: 4, name: 'Malee Jaikaew', studentId: '6501004', major: 'Business IT', gpa: 3.40 },
-    { id: 5, name: 'Pong Srisuk', studentId: '6501005', major: 'Information Technology', gpa: 3.75 },
-  ]
-};
+import {
+  fetchStudents,
+  addStudentAsync,
+  updateStudentAsync,
+  deleteStudentAsync,
+} from './studentsThunks';
 
 const studentsSlice = createSlice({
   name: 'students',
-  initialState,
-  reducers: {
-    addStudent: (state, action) => {
-      state.list.push(action.payload);
-    },
-    deleteStudent: (state, action) => {
-      state.list = state.list.filter(student => student.id !== action.payload);
-    },
-    updateStudent: (state, action) => {
-      const index = state.list.findIndex(student => student.id === action.payload.id);
-      if (index !== -1) {
-        state.list[index] = { ...state.list[index], ...action.payload };
-      }
-    },
+  initialState: {
+    list: [],
+    status: 'idle', // NEW: tracks async state ('idle' | 'loading' | 'succeeded' | 'failed')
+    error: null,    // NEW: holds error message if failed
+  },
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchStudents.pending, state => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchStudents.fulfilled, (state, { payload }) => {
+        state.status = 'succeeded';
+        state.list = payload;
+      })
+      .addCase(fetchStudents.rejected, (state, { payload }) => {
+        state.status = 'failed';
+        state.error = payload;
+      })
+      .addCase(addStudentAsync.fulfilled, (state, { payload }) => {
+        state.list.push(payload);
+      })
+      .addCase(updateStudentAsync.fulfilled, (state, { payload }) => {
+        const i = state.list.findIndex(s => s.id === payload.id);
+        if (i !== -1) {
+          state.list[i] = payload;
+        }
+      })
+      .addCase(deleteStudentAsync.fulfilled, (state, { payload }) => {
+        state.list = state.list.filter(s => s.id !== payload);
+      });
   },
 });
 
-export const { addStudent, deleteStudent, updateStudent } = studentsSlice.actions;
 export default studentsSlice.reducer;

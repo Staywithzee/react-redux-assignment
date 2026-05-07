@@ -5,6 +5,10 @@ export const selectAllStudents = (state) => state.students.list;
 // Select total count
 export const selectStudentCount = (state) => state.students.list.length;
 
+// Select async loading status and error
+export const selectStudentsStatus = (state) => state.students.status;
+export const selectStudentsError = (state) => state.students.error;
+
 // ── Derived / computed selectors ─────────────────────────
 // Compute average GPA across all students
 export const selectAverageGpa = (state) => {

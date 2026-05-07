@@ -1,5 +1,5 @@
 // src/components/EditModal.jsx — Session 3
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 function EditModal({ student, onSave, onCancel }) {
   // Local copy of student data — what the user edits before saving

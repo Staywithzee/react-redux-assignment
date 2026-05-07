@@ -1,5 +1,4 @@
 // src/components/GpaSummary.jsx — Session 3 version (no props)
-import React from "react";
 import { useSelector } from "react-redux";
 import {
   selectStudentCount,

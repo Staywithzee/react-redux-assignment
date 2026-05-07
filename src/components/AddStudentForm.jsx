@@ -1,7 +1,7 @@
-// src/components/AddStudentForm.jsx — Session 3
-import React, { useState } from "react";
+// src/components/AddStudentForm.jsx — Session 4
+import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addStudent } from "../features/students/studentsSlice";
+import { addStudentAsync } from "../features/students/studentsThunks";
 
 const EMPTY_FORM = { name: "", studentId: "", major: "", gpa: "" };
 
@@ -9,13 +9,14 @@ function AddStudentForm() {
   const dispatch = useDispatch();
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Single handler for ALL inputs via computed property name
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     // Basic validation
@@ -30,16 +31,23 @@ function AddStudentForm() {
       return;
     }
 
-    dispatch(addStudent({ 
-      id: Date.now(), 
-      name: form.name.trim(),
-      studentId: form.studentId.trim(),
-      major: form.major.trim() || "Undeclared",
-      gpa: parseFloat(form.gpa) || 0 
-    }));
-
-    setForm(EMPTY_FORM); // Reset form after successful submit
+    setIsSaving(true);
     setError("");
+
+    try {
+      await dispatch(addStudentAsync({ 
+        name: form.name.trim(),
+        studentId: form.studentId.trim(),
+        major: form.major.trim() || "Undeclared",
+        gpa: parseFloat(form.gpa) || 0 
+      })).unwrap();
+
+      setForm(EMPTY_FORM); // Reset form after successful submit
+    } catch (err) {
+      setError(err || "Failed to add student.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -53,6 +61,7 @@ function AddStudentForm() {
           onChange={handleChange} 
           placeholder="Full Name *" 
           required 
+          disabled={isSaving}
         />
         <input 
           name="studentId" 
@@ -60,12 +69,14 @@ function AddStudentForm() {
           value={form.studentId} 
           onChange={handleChange} 
           required 
+          disabled={isSaving}
         />
         <input 
           name="major" 
           placeholder="Major" 
           value={form.major} 
           onChange={handleChange} 
+          disabled={isSaving}
         />
         <input 
           name="gpa" 
@@ -76,9 +87,10 @@ function AddStudentForm() {
           step="0.01"
           min="0"
           max="4"
+          disabled={isSaving}
         />
-        <button type="submit" className="btn-primary">
-          + Add Student
+        <button type="submit" className="btn-primary" disabled={isSaving}>
+          {isSaving ? "Adding..." : "+ Add Student"}
         </button>
       </div>
     </form>

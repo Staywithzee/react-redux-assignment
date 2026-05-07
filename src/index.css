@@ -8,24 +8,27 @@
 }
 
 :root {
-  /* Premium Dark Palette */
-  --primary: #6366f1;
-  --primary-light: #818cf8;
-  --primary-dark: #4f46e5;
-  --accent: #10b981;
-  --bg-color: #09090b;      /* Almost black */
-  --surface: #18181b;       /* Dark gray for cards */
-  --text-main: #f4f4f5;     /* Off-white */
-  --text-muted: #a1a1aa;    /* Gray */
-  --border-color: #27272a;  /* Subtle dark border */
-  --danger: #ef4444;
+  /* Premium Monochrome Apple/Vercel Aesthetic */
+  --primary: #ffffff;          /* White primary accents */
+  --primary-light: #e4e4e7;    /* Light silver-gray */
+  --primary-dark: #a1a1aa;     /* Mid gray */
+  --btn-text: #000000;         /* High-contrast black text for buttons */
+  --accent: #27272a;           /* Zinc accent */
+  --bg-color: #000000;         /* Deep obsidian black */
+  --surface: #09090b;          /* Dark charcoal cards */
+  --text-main: #ffffff;        /* Pure white */
+  --text-muted: #8e8e93;       /* iOS silver-grey */
+  --border-color: #27272a;     /* Fine border lines */
+  --danger: #ff453a;           /* iOS Red */
+  --success: #30d158;          /* iOS Green */
+  --warning: #ff9f0a;          /* iOS Orange */
   
   /* Shadows & Effects for Dark Mode */
-  --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
-  --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-  --glass-bg: rgba(24, 24, 27, 0.7);
-  --glass-border: rgba(39, 39, 42, 0.5);
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.8);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.9);
+  --shadow-premium: 0 30px 60px rgba(0, 0, 0, 0.9);
+  --glass-bg: rgba(9, 9, 11, 0.8);
+  --glass-border: rgba(39, 39, 42, 0.4);
 }
 
 body { 
@@ -36,8 +39,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(142, 142, 147, 0.05) 0px, transparent 50%);
 }
 
 h1, h2, h3, h4 {
