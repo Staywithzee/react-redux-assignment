@@ -1,10 +1,7 @@
-// src/components/GpaSummary.jsx — Session 3 version (no props)
+// src/components/GpaSummary.jsx — Session 5
 import { useSelector } from "react-redux";
-import {
-  selectStudentCount,
-  selectAverageGpa,
-  selectHighAchievers,
-} from "../features/students/selectors";
+import { selectStudentCount } from "../features/students/studentsSlice";
+import { selectAverageGpa, selectHighAchievers } from "../features/students/selectors";
 
 function GpaSummary() {
   // Each useSelector is independent — only re-renders if its value changes

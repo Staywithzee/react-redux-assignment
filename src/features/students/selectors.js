@@ -1,25 +1,30 @@
-// src/features/students/selectors.js
-// ── Basic selectors ───────────────────────────────────────
-// Select the full list of students from the store
-export const selectAllStudents = (state) => state.students.list;
-// Select total count
-export const selectStudentCount = (state) => state.students.list.length;
+// src/features/students/selectors.js — Session 5
+import { createSelector } from '@reduxjs/toolkit';
+import { selectAllStudents } from './studentsSlice';
 
-// Select async loading status and error
-export const selectStudentsStatus = (state) => state.students.status;
-export const selectStudentsError = (state) => state.students.error;
+// ── Primitive selectors (return scalars — no memoization needed)
+export const selectStudentsStatus = state => state.students.status;
+export const selectStudentsError = state => state.students.error;
 
-// ── Derived / computed selectors ─────────────────────────
-// Compute average GPA across all students
-export const selectAverageGpa = (state) => {
-  const list = state.students.list;
-  if (list.length === 0) return "0.00";
-  const total = list.reduce((sum, s) => sum + s.gpa, 0);
-  return (total / list.length).toFixed(2);
-};
+// ── Derived selectors (memoized — compute arrays or objects)
+export const selectAverageGpa = createSelector(
+  selectAllStudents,
+  students => {
+    if (!students.length) return '—';
+    return (students.reduce((acc, s) => acc + s.gpa, 0) / students.length).toFixed(2);
+  }
+);
 
-// Find a single student by id (useful for edit modal)
-export const selectStudentById = (id) => (state) => state.students.list.find((s) => s.id === id);
+export const selectHighAchievers = createSelector(
+  selectAllStudents,
+  students => students.filter(s => s.gpa >= 3.5)
+);
 
-// Count students above a GPA threshold
-export const selectHighAchievers = (state) => state.students.list.filter((s) => s.gpa >= 3.5);
+export const selectGpaDistribution = createSelector(
+  selectAllStudents,
+  students => ({
+    high: students.filter(s => s.gpa >= 3.5).length,
+    medium: students.filter(s => s.gpa >= 2.5 && s.gpa < 3.5).length,
+    low: students.filter(s => s.gpa < 2.5).length,
+  })
+);
