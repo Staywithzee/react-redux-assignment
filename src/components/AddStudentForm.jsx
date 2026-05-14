@@ -1,17 +1,14 @@
-// src/components/AddStudentForm.jsx — Session 4
+// src/components/AddStudentForm.jsx — Session 6
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addStudentAsync } from "../features/students/studentsThunks";
+import { useAddStudentMutation } from "../features/students/studentsApi";
 
 const EMPTY_FORM = { name: "", studentId: "", major: "", gpa: "" };
 
 function AddStudentForm() {
-  const dispatch = useDispatch();
+  const [addStudent, { isLoading: isSaving }] = useAddStudentMutation();
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
 
-  // Single handler for ALL inputs via computed property name
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
@@ -19,7 +16,6 @@ function AddStudentForm() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    // Basic validation
     if (!form.name.trim() || !form.studentId.trim()) {
       setError("Name and Student ID are required.");
       return;
@@ -31,22 +27,19 @@ function AddStudentForm() {
       return;
     }
 
-    setIsSaving(true);
     setError("");
 
     try {
-      await dispatch(addStudentAsync({ 
+      await addStudent({
         name: form.name.trim(),
         studentId: form.studentId.trim(),
         major: form.major.trim() || "Undeclared",
-        gpa: parseFloat(form.gpa) || 0 
-      })).unwrap();
+        gpa: parseFloat(form.gpa) || 0,
+      }).unwrap();
 
-      setForm(EMPTY_FORM); // Reset form after successful submit
+      setForm(EMPTY_FORM);
     } catch (err) {
-      setError(err || "Failed to add student.");
-    } finally {
-      setIsSaving(false);
+      setError(err?.data || "Failed to add student.");
     }
   }
 
@@ -55,34 +48,34 @@ function AddStudentForm() {
       <h3>Add New Student</h3>
       {error && <p className="form-error" style={{ color: "var(--danger)", marginBottom: "1rem", fontSize: "0.875rem" }}>{error}</p>}
       <div className="form-row">
-        <input 
-          name="name" 
-          value={form.name} 
-          onChange={handleChange} 
-          placeholder="Full Name *" 
-          required 
+        <input
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Full Name *"
+          required
           disabled={isSaving}
         />
-        <input 
-          name="studentId" 
-          placeholder="Student ID *" 
-          value={form.studentId} 
-          onChange={handleChange} 
-          required 
+        <input
+          name="studentId"
+          placeholder="Student ID *"
+          value={form.studentId}
+          onChange={handleChange}
+          required
           disabled={isSaving}
         />
-        <input 
-          name="major" 
-          placeholder="Major" 
-          value={form.major} 
-          onChange={handleChange} 
+        <input
+          name="major"
+          placeholder="Major"
+          value={form.major}
+          onChange={handleChange}
           disabled={isSaving}
         />
-        <input 
-          name="gpa" 
-          placeholder="GPA (0.0–4.0)" 
-          value={form.gpa} 
-          onChange={handleChange} 
+        <input
+          name="gpa"
+          placeholder="GPA (0.0–4.0)"
+          value={form.gpa}
+          onChange={handleChange}
           type="number"
           step="0.01"
           min="0"

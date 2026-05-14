@@ -1,28 +1,17 @@
-// src/components/StudentTable.jsx — Session 5
+// src/components/StudentTable.jsx — Session 6
 import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import {
-  deleteStudentAsync,
-  updateStudentAsync,
-  fetchStudents,
-  IS_PLACEHOLDER
-} from "../features/students/studentsThunks";
-import {
-  selectAllStudents,
-  selectStudentById,
-} from "../features/students/studentsSlice";
-import {
-  selectStudentsStatus,
-  selectStudentsError
-} from "../features/students/selectors";
+  useGetStudentsQuery,
+  useDeleteStudentMutation,
+  useUpdateStudentMutation,
+  IS_PLACEHOLDER,
+} from "../features/students/studentsApi";
 import EditModal from "./EditModal";
 
-// O(1) per-row lookup via entity adapter — only re-renders when this student changes
-function StudentRow({ id, index, onEdit, onDelete }) {
-  const student = useSelector(state => selectStudentById(state, id));
-
+function StudentRow({ student, index, onEdit, onDelete }) {
+  if (!student) return null;
   return (
-    <tr key={student.id} className={student.gpa >= 3.5 ? "high-gpa" : ""}>
+    <tr className={student.gpa >= 3.5 ? "high-gpa" : ""}>
       <td>{index + 1}</td>
       <td style={{ fontWeight: 500 }}>{student.name}</td>
       <td>{student.studentId}</td>
@@ -81,58 +70,45 @@ function StudentRow({ id, index, onEdit, onDelete }) {
 }
 
 function StudentTable() {
-  const dispatch = useDispatch();
-  const students = useSelector(selectAllStudents);
-  const status = useSelector(selectStudentsStatus);
-  const error = useSelector(selectStudentsError);
+  const { data: students = [], isLoading, isError, error, refetch } = useGetStudentsQuery();
+  const [deleteStudent] = useDeleteStudentMutation();
+  const [updateStudent] = useUpdateStudentMutation();
 
-  // Local UI state — modal open/close and editing
   const [editing, setEditing] = useState(null);
-
-  // Advanced Filtering State
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMajor, setSelectedMajor] = useState("all");
   const [selectedGpa, setSelectedGpa] = useState("all");
 
   function handleDelete(id) {
     if (window.confirm("ต้องการลบนักศึกษาคนนี้ใช่หรือไม่?")) {
-      dispatch(deleteStudentAsync(id));
+      deleteStudent(id);
     }
   }
 
-  function handleEditSave(updatedData) {
-    dispatch(updateStudentAsync({ ...updatedData, gpa: parseFloat(updatedData.gpa) || 0 }));
+  async function handleEditSave(updatedData) {
+    await updateStudent({ ...updatedData, gpa: parseFloat(updatedData.gpa) || 0 });
     setEditing(null);
   }
 
-  // Extract dynamically unique majors for dropdown filter
   const uniqueMajors = Array.from(new Set(students.map(s => s.major))).filter(Boolean);
 
-  // Apply filters and collect ids for StudentRow
-  const filteredIds = students
-    .filter(student => {
-      const matchesSearch =
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.studentId.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredStudents = students.filter(student => {
+    const matchesSearch =
+      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.studentId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesMajor = selectedMajor === "all" || student.major === selectedMajor;
+    let matchesGpa = true;
+    if (selectedGpa === "honors") matchesGpa = student.gpa >= 3.5;
+    else if (selectedGpa === "normal") matchesGpa = student.gpa >= 2.5 && student.gpa < 3.5;
+    else if (selectedGpa === "warning") matchesGpa = student.gpa < 2.5;
+    return matchesSearch && matchesMajor && matchesGpa;
+  });
 
-      const matchesMajor = selectedMajor === "all" || student.major === selectedMajor;
-
-      let matchesGpa = true;
-      if (selectedGpa === "honors") matchesGpa = student.gpa >= 3.5;
-      else if (selectedGpa === "normal") matchesGpa = student.gpa >= 2.5 && student.gpa < 3.5;
-      else if (selectedGpa === "warning") matchesGpa = student.gpa < 2.5;
-
-      return matchesSearch && matchesMajor && matchesGpa;
-    })
-    .map(s => s.id);
-
-  // Export filtered list to CSV format
   const handleExportCSV = () => {
-    if (filteredIds.length === 0) {
+    if (filteredStudents.length === 0) {
       alert("ไม่มีข้อมูลที่จะส่งออก");
       return;
     }
-    const filteredStudents = students.filter(s => filteredIds.includes(s.id));
     const headers = ["ID", "Name", "Student ID", "Major", "GPA", "Academic Status", "Sync Status"];
     const rows = filteredStudents.map(s => {
       const academicStatus = s.gpa >= 3.5 ? "Honors" : s.gpa < 2.5 ? "Warning" : "Normal";
@@ -147,7 +123,6 @@ function StudentTable() {
         syncStatus
       ];
     });
-
     const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -159,7 +134,7 @@ function StudentTable() {
     document.body.removeChild(link);
   };
 
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className="status-container">
         <div className="spinner"></div>
@@ -168,20 +143,18 @@ function StudentTable() {
     );
   }
 
-  if (status === 'failed') {
+  if (isError) {
     return (
       <div className="status-container error-banner">
         <div className="error-icon">⚠️</div>
-        <p style={{ color: 'var(--danger)', fontWeight: 500 }}>การเชื่อมต่อล้มเหลว: {error}</p>
-        <button className="btn-retry" onClick={() => dispatch(fetchStudents())}>
+        <p style={{ color: 'var(--danger)', fontWeight: 500 }}>
+          การเชื่อมต่อล้มเหลว: {error?.status || "Failed to fetch students"}
+        </p>
+        <button className="btn-retry" onClick={refetch}>
           🔄 ลองเชื่อมต่อใหม่อีกครั้ง
         </button>
       </div>
     );
-  }
-
-  if (status !== 'succeeded') {
-    return null;
   }
 
   return (
@@ -228,7 +201,7 @@ function StudentTable() {
         </div>
       </div>
 
-      {filteredIds.length === 0 ? (
+      {filteredStudents.length === 0 ? (
         <div className="student-table-container" style={{ padding: "3rem", textAlign: "center" }}>
           <p className="empty-state" style={{ color: "var(--text-muted)", fontSize: "1rem" }}>
             ไม่พบรายชื่อนักศึกษาที่ตรงตามเงื่อนไขที่ค้นหา 🔍
@@ -250,10 +223,10 @@ function StudentTable() {
               </tr>
             </thead>
             <tbody>
-              {filteredIds.map((id, index) => (
+              {filteredStudents.map((student, index) => (
                 <StudentRow
-                  key={id}
-                  id={id}
+                  key={student.id}
+                  student={student}
                   index={index}
                   onEdit={setEditing}
                   onDelete={handleDelete}

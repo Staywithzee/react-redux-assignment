@@ -1,19 +1,11 @@
-// src/App.jsx
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { fetchStudents, IS_PLACEHOLDER } from './features/students/studentsThunks';
+// src/App.jsx — Session 6
+import { IS_PLACEHOLDER } from './features/students/studentsApi';
 import './App.css';
 import StudentTable from './components/StudentTable';
 import GpaSummary from './components/GpaSummary';
 import AddStudentForm from './components/AddStudentForm';
 
 function App() {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchStudents());
-  }, [dispatch]);
-
   return (
     <div className="app-container">
       <header className="app-header">
@@ -34,9 +26,9 @@ function App() {
 
       <main className="app-main">
         <GpaSummary />
-        
+
         <AddStudentForm />
-        
+
         <section>
           <h2 style={{ marginBottom: '1rem', fontSize: '1.5rem', color: 'var(--text-main)' }}>
             Student Roster
