@@ -1,11 +1,15 @@
-// src/features/students/studentsApi.js — Session 6
+// src/features/students/studentsApi.js — Session 6/7/8
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const BASE = 'https://67bc82c1ed4861eef79bf773.mockapi.io/api/v1/';
+// VITE_API_URL set in .env.test (tests) and .env.production (prod)
+// Falls back to placeholder MockAPI URL in local dev
+const BASE = import.meta.env.VITE_API_URL ?? 'https://67bc82c1ed4861eef79bf773.mockapi.io/api/v1/';
 
-// ── localStorage fallback (mirrors old thunks behaviour) ──────────────────
-export const IS_PLACEHOLDER = true;
+// true  → use localStorage fallback on HTTP errors (local dev, no real API)
+// false → propagate HTTP errors as RTK Query errors  (tests + production)
+export const IS_PLACEHOLDER = !import.meta.env.VITE_API_URL;
 
+// ── localStorage fallback ──────────────────────────────────────────────────
 const STORAGE_KEY = 'acadestate_students';
 
 const initialStudents = [
@@ -29,6 +33,12 @@ function saveLocal(students) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
 }
 
+// Helper: return RTK Query error or localStorage fallback based on IS_PLACEHOLDER
+function httpError(status, statusText) {
+  if (IS_PLACEHOLDER) return { data: getLocal() };
+  return { error: { status, data: statusText } };
+}
+
 // ── RTK Query API ──────────────────────────────────────────────────────────
 export const studentsApi = createApi({
   reducerPath: 'studentsApi',
@@ -39,7 +49,7 @@ export const studentsApi = createApi({
       queryFn: async () => {
         try {
           const res = await fetch(`${BASE}students`);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!res.ok) return httpError(res.status, res.statusText);
           return { data: await res.json() };
         } catch {
           return { data: getLocal() };
@@ -55,11 +65,11 @@ export const studentsApi = createApi({
       queryFn: async (id) => {
         try {
           const res = await fetch(`${BASE}students/${id}`);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!res.ok) return httpError(res.status, res.statusText);
           return { data: await res.json() };
         } catch {
           const student = getLocal().find(s => String(s.id) === String(id));
-          return student ? { data: student } : { error: { status: 404, error: 'Not found' } };
+          return student ? { data: student } : { error: { status: 404, data: 'Not found' } };
         }
       },
       providesTags: (result, error, id) => [{ type: 'Student', id }],
@@ -73,7 +83,7 @@ export const studentsApi = createApi({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(student),
           });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!res.ok) return httpError(res.status, res.statusText);
           return { data: await res.json() };
         } catch {
           const list = getLocal();
@@ -93,7 +103,7 @@ export const studentsApi = createApi({
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(student),
           });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!res.ok) return httpError(res.status, res.statusText);
           return { data: await res.json() };
         } catch {
           const list = getLocal();
@@ -103,14 +113,12 @@ export const studentsApi = createApi({
         }
       },
       async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
-        // Patch list cache optimistically
         const patchList = dispatch(
           studentsApi.util.updateQueryData('getStudents', undefined, draft => {
             const item = draft.find(s => s.id === id);
             if (item) Object.assign(item, patch);
           })
         );
-        // Patch detail cache optimistically
         const patchDetail = dispatch(
           studentsApi.util.updateQueryData('getStudentById', id, draft => {
             Object.assign(draft, patch);
@@ -119,7 +127,6 @@ export const studentsApi = createApi({
         try {
           await queryFulfilled;
         } catch {
-          // Server rejected → revert both patches atomically
           patchList.undo();
           patchDetail.undo();
         }
@@ -131,7 +138,7 @@ export const studentsApi = createApi({
       queryFn: async (id) => {
         try {
           const res = await fetch(`${BASE}students/${id}`, { method: 'DELETE' });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!res.ok) return httpError(res.status, res.statusText);
           return { data: id };
         } catch {
           saveLocal(getLocal().filter(s => String(s.id) !== String(id)));
