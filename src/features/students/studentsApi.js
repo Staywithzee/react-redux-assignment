@@ -47,9 +47,10 @@ export const studentsApi = createApi({
   endpoints: builder => ({
     getStudents: builder.query({
       queryFn: async () => {
+        if (IS_PLACEHOLDER) return { data: getLocal() };
         try {
           const res = await fetch(`${BASE}students`);
-          if (!res.ok) return httpError(res.status, res.statusText);
+          if (!res.ok) return { error: { status: res.status, data: res.statusText } };
           return { data: await res.json() };
         } catch {
           return { data: getLocal() };
@@ -63,9 +64,13 @@ export const studentsApi = createApi({
 
     getStudentById: builder.query({
       queryFn: async (id) => {
+        if (IS_PLACEHOLDER) {
+          const student = getLocal().find(s => String(s.id) === String(id));
+          return student ? { data: student } : { error: { status: 404, data: 'Not found' } };
+        }
         try {
           const res = await fetch(`${BASE}students/${id}`);
-          if (!res.ok) return httpError(res.status, res.statusText);
+          if (!res.ok) return { error: { status: res.status, data: res.statusText } };
           return { data: await res.json() };
         } catch {
           const student = getLocal().find(s => String(s.id) === String(id));
@@ -77,13 +82,19 @@ export const studentsApi = createApi({
 
     addStudent: builder.mutation({
       queryFn: async (student) => {
+        if (IS_PLACEHOLDER) {
+          const list = getLocal();
+          const newStudent = { ...student, id: String(Date.now()) };
+          saveLocal([...list, newStudent]);
+          return { data: newStudent };
+        }
         try {
           const res = await fetch(`${BASE}students`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(student),
           });
-          if (!res.ok) return httpError(res.status, res.statusText);
+          if (!res.ok) return { error: { status: res.status, data: res.statusText } };
           return { data: await res.json() };
         } catch {
           const list = getLocal();
@@ -97,13 +108,19 @@ export const studentsApi = createApi({
 
     updateStudent: builder.mutation({
       queryFn: async (student) => {
+        if (IS_PLACEHOLDER) {
+          const list = getLocal();
+          const idx = list.findIndex(s => String(s.id) === String(student.id));
+          if (idx !== -1) { list[idx] = student; saveLocal(list); }
+          return { data: student };
+        }
         try {
           const res = await fetch(`${BASE}students/${student.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(student),
           });
-          if (!res.ok) return httpError(res.status, res.statusText);
+          if (!res.ok) return { error: { status: res.status, data: res.statusText } };
           return { data: await res.json() };
         } catch {
           const list = getLocal();
@@ -136,9 +153,13 @@ export const studentsApi = createApi({
 
     deleteStudent: builder.mutation({
       queryFn: async (id) => {
+        if (IS_PLACEHOLDER) {
+          saveLocal(getLocal().filter(s => String(s.id) !== String(id)));
+          return { data: id };
+        }
         try {
           const res = await fetch(`${BASE}students/${id}`, { method: 'DELETE' });
-          if (!res.ok) return httpError(res.status, res.statusText);
+          if (!res.ok) return { error: { status: res.status, data: res.statusText } };
           return { data: id };
         } catch {
           saveLocal(getLocal().filter(s => String(s.id) !== String(id)));
