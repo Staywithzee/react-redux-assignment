@@ -70,7 +70,12 @@ function StudentRow({ student, index, onEdit, onDelete }) {
 }
 
 function StudentTable() {
-  const { data: students = [], isLoading, isError, error, refetch } = useGetStudentsQuery();
+  const { data: students = [], isLoading, isFetching, isError, error, refetch } = useGetStudentsQuery(undefined, {
+    pollingInterval: 30_000,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
+    refetchOnMountOrArgChange: true,
+  });
   const [deleteStudent] = useDeleteStudentMutation();
   const [updateStudent] = useUpdateStudentMutation();
 
@@ -198,6 +203,12 @@ function StudentTable() {
           <button className="btn-secondary" onClick={handleExportCSV}>
             📤 ส่งออก CSV
           </button>
+
+          {isFetching && (
+            <span className="badge badge-online" style={{ alignSelf: 'center', fontSize: '0.75rem' }}>
+              ↻ Syncing...
+            </span>
+          )}
         </div>
       </div>
 

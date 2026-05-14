@@ -102,10 +102,29 @@ export const studentsApi = createApi({
           return { data: student };
         }
       },
-      invalidatesTags: (result, error, student) => [
-        { type: 'Student', id: student.id },
-        { type: 'Student', id: 'LIST' },
-      ],
+      async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
+        // Patch list cache optimistically
+        const patchList = dispatch(
+          studentsApi.util.updateQueryData('getStudents', undefined, draft => {
+            const item = draft.find(s => s.id === id);
+            if (item) Object.assign(item, patch);
+          })
+        );
+        // Patch detail cache optimistically
+        const patchDetail = dispatch(
+          studentsApi.util.updateQueryData('getStudentById', id, draft => {
+            Object.assign(draft, patch);
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          // Server rejected → revert both patches atomically
+          patchList.undo();
+          patchDetail.undo();
+        }
+      },
+      invalidatesTags: (result, error, { id }) => [{ type: 'Student', id }],
     }),
 
     deleteStudent: builder.mutation({

@@ -1,7 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import { studentsApi } from '../features/students/studentsApi';
 import coursesReducer from '../features/courses/coursesSlice';
 import gradesReducer from '../features/grades/gradesSlice';
+import loggerMiddleware from './middleware/logger';
 
 export const store = configureStore({
   reducer: {
@@ -9,7 +11,13 @@ export const store = configureStore({
     courses: coursesReducer,
     grades: gradesReducer,
   },
-  middleware: g => g().concat(studentsApi.middleware),
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware()
+      .concat(studentsApi.middleware)
+      .concat(loggerMiddleware),
 });
+
+// Required for refetchOnFocus / refetchOnReconnect
+setupListeners(store.dispatch);
 
 export default store;
