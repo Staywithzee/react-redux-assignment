@@ -1,9 +1,20 @@
-// src/App.jsx — Session 6
+// src/App.jsx — Session 8
+import { lazy, Suspense } from 'react';
 import { IS_PLACEHOLDER } from './features/students/studentsApi';
 import './App.css';
-import StudentTable from './components/StudentTable';
-import GpaSummary from './components/GpaSummary';
-import AddStudentForm from './components/AddStudentForm';
+
+// Code-split each section — browser loads only what's needed
+const GpaSummary    = lazy(() => import('./components/GpaSummary'));
+const AddStudentForm = lazy(() => import('./components/AddStudentForm'));
+const StudentTable  = lazy(() => import('./components/StudentTable'));
+
+function SectionFallback() {
+  return (
+    <div className="status-container">
+      <div className="spinner"></div>
+    </div>
+  );
+}
 
 function App() {
   return (
@@ -25,15 +36,21 @@ function App() {
       </header>
 
       <main className="app-main">
-        <GpaSummary />
+        <Suspense fallback={<SectionFallback />}>
+          <GpaSummary />
+        </Suspense>
 
-        <AddStudentForm />
+        <Suspense fallback={<SectionFallback />}>
+          <AddStudentForm />
+        </Suspense>
 
         <section>
           <h2 style={{ marginBottom: '1rem', fontSize: '1.5rem', color: 'var(--text-main)' }}>
             Student Roster
           </h2>
-          <StudentTable />
+          <Suspense fallback={<SectionFallback />}>
+            <StudentTable />
+          </Suspense>
         </section>
       </main>
 
